@@ -3,19 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ErgoBuddy - Your Ergonomic Assistant</title>
+    <title>Ergonomic Chatbot</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Animated Background Elements -->
-    <div class="grid-container"></div>
-    
-    <!-- Neon Glow Effects -->
-    <div class="neon-glow glow-1"></div>
-    <div class="neon-glow glow-2"></div>
-    <div class="neon-glow glow-3"></div>
+    <!-- New Animated Background -->
+    <div class="animated-bg"></div>
     
     <!-- Floating Elements -->
     <div class="floating-element float-1"></div>
@@ -23,46 +17,38 @@
     <div class="floating-element float-3"></div>
     <div class="floating-element float-4"></div>
     
-    <!-- Ergonomic Icons with Neon Effect -->
-    <div class="ergo-icon icon-1"><i class="fas fa-chair"></i></div>
-    <div class="ergo-icon icon-2"><i class="fas fa-desktop"></i></div>
-    <div class="ergo-icon icon-3"><i class="fas fa-user"></i></div>
-    <div class="ergo-icon icon-4"><i class="fas fa-keyboard"></i></div>
-    <div class="ergo-icon icon-5"><i class="fas fa-hand-holding-medical"></i></div>
-    <div class="ergo-icon icon-6"><i class="fas fa-spine"></i></div>
-    
-    <!-- Interactive Particles Container -->
-    <div id="particles-container"></div>
-    
     <div class="container">
-        <header>
-            <div class="header-content">
-                <h1><i class="fas fa-heartbeat"></i> ErgoBuddy</h1>
-                <div class="user-info">
-                    <span><i class="fas fa-user-circle"></i> {{ username }}</span>
-                    <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
-            </div>
-        </header>
-        
-        <main class="chat-container">
+        <div class="chat-container">
             <div class="chat-header">
                 <div class="chat-title">
-                    <i class="fas fa-comments"></i>
+                    <i class="fas fa-robot"></i>
                     <h2>Ergonomic Assistant</h2>
                 </div>
                 <div class="chat-status">
-                    <span class="status-indicator online"></span>
+                    <div class="status-indicator online"></div>
                     <span>Online</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="username">{{ username }}</span>
+                        <a href="/logout" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
                 </div>
             </div>
             
-            <div class="chat-messages" id="chat-messages">
+            <div id="chat-messages">
+                <!-- Default Welcome Message -->
                 <div class="message bot">
                     <div class="message-content">
                         <i class="fas fa-robot"></i>
                         <div class="message-text">
-                            <p>Hello! I'm your ergonomic assistant. How can I help you today?</p>
+                            <p>Hey there {{ username }}! I'm your ergonomic assistant. How can I help you with your workspace setup, posture, or any ergonomic concerns today?</p>
                             <span class="message-time">Just now</span>
                         </div>
                     </div>
@@ -71,21 +57,24 @@
             
             <div class="chat-input-container">
                 <form id="chat-form">
-                    <input type="text" id="user-input" placeholder="Ask about ergonomics, posture, or workspace setup..." autocomplete="off">
-                    <button type="submit" id="send-button" title="Send message">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </form>
-                <div class="input-suggestions">
-                    <span>Try asking about:</span>
-                    <div class="suggestion-chips">
-                        <button class="suggestion-chip">Proper desk height</button>
-                        <button class="suggestion-chip">Neck stretches</button>
-                        <button class="suggestion-chip">Chair adjustment</button>
+                    <div class="input-suggestions">
+                        <span>Try asking about:</span>
+                        <div class="suggestion-chips">
+                            <div class="suggestion-chip">How to set up an ergonomic workspace?</div>
+                            <div class="suggestion-chip">What's the best posture for sitting?</div>
+                            <div class="suggestion-chip">Show me some desk stretches</div>
+                            <div class="suggestion-chip">How to prevent back pain?</div>
+                        </div>
                     </div>
-                </div>
+                    <div class="input-group">
+                        <input type="text" id="user-input" placeholder="Ask about ergonomics, posture, or workspace setup..." autocomplete="off">
+                        <button type="submit" id="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
-        </main>
+        </div>
     </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

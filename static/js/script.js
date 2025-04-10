@@ -3,9 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const chatMessages = document.getElementById('chat-messages');
     const suggestionChips = document.querySelectorAll('.suggestion-chip');
-    const ergoPatterns = document.querySelectorAll('.ergo-pattern');
-    const ergoIcons = document.querySelectorAll('.ergo-icon');
     const particlesContainer = document.getElementById('particles-container');
+    const floatingElements = document.querySelectorAll('.floating-element');
+    const ergoIcons = document.querySelectorAll('.ergo-icon');
+    const glowElements = document.querySelectorAll('.glow-element');
     
     // Create particles
     if (particlesContainer) {
@@ -52,72 +53,193 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Function to get current time in HH:MM format
+    // Get current time for message timestamps
     function getCurrentTime() {
         const now = new Date();
         return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     
-    // Function to add a message to the chat
-    function addMessage(content, isUser = false) {
+    // Add a message to the chat
+    function addMessage(text, isUser = false, imageUrl = null, imageCaption = null) {
+        // Create message element
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
         
+        // Create message content
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         
-        if (!isUser) {
-            const icon = document.createElement('i');
-            icon.className = 'fas fa-robot';
-            messageContent.appendChild(icon);
-        }
+        // Add icon
+        const icon = document.createElement('i');
+        icon.className = isUser ? 'fas fa-user' : 'fas fa-robot';
+        messageContent.appendChild(icon);
         
+        // Create message text container
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
         
-        const text = document.createElement('p');
-        text.textContent = content;
-        messageText.appendChild(text);
+        // Add message text with proper formatting
+        const paragraph = document.createElement('p');
+        paragraph.textContent = text;
+        messageText.appendChild(paragraph);
         
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'message-time';
-        timeSpan.textContent = getCurrentTime();
-        messageText.appendChild(timeSpan);
+        // Add image if provided
+        if (imageUrl) {
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'message-image-container';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = imageCaption || 'Ergonomic guide';
+            img.className = 'message-image';
+            
+            // Add loading animation
+            img.addEventListener('load', () => {
+                img.classList.add('loaded');
+            });
+            
+            // Add error handling
+            img.addEventListener('error', () => {
+                imageContainer.innerHTML = '<div class="image-error">Image could not be loaded</div>';
+            });
+            
+            imageContainer.appendChild(img);
+            
+            // Add caption if provided
+            if (imageCaption) {
+                const caption = document.createElement('div');
+                caption.className = 'image-caption';
+                caption.textContent = imageCaption;
+                imageContainer.appendChild(caption);
+            }
+            
+            messageText.appendChild(imageContainer);
+        }
         
+        // Add timestamp
+        const timestamp = document.createElement('span');
+        timestamp.className = 'message-time';
+        timestamp.textContent = getCurrentTime();
+        messageText.appendChild(timestamp);
+        
+        // Assemble message
         messageContent.appendChild(messageText);
         messageDiv.appendChild(messageContent);
+        
+        // Add to chat
         chatMessages.appendChild(messageDiv);
         
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Scroll to the new message with smooth animation
+        setTimeout(() => {
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
         
-        // Trigger background animation
-        triggerBackgroundAnimation();
+        // Adjust message size based on content
+        adjustMessageSize(messageDiv);
     }
     
-    // Function to show typing indicator
+    // Adjust message size based on content
+    function adjustMessageSize(messageElement) {
+        const messageText = messageElement.querySelector('.message-text p');
+        if (!messageText) return;
+        
+        // Get the text content
+        const text = messageText.textContent;
+        
+        // Calculate approximate lines based on text length and container width
+        const containerWidth = messageElement.offsetWidth;
+        const avgCharWidth = 8; // Approximate width of a character in pixels
+        const charsPerLine = Math.floor(containerWidth / avgCharWidth);
+        const lines = Math.ceil(text.length / charsPerLine);
+        
+        // Add a class based on message length
+        if (lines > 10) {
+            messageElement.classList.add('long-message');
+        } else if (lines > 5) {
+            messageElement.classList.add('medium-message');
+        } else {
+            messageElement.classList.add('short-message');
+        }
+        
+        // Ensure the chat container is properly sized
+        adjustChatContainer();
+    }
+    
+    // Adjust chat container size based on content
+    function adjustChatContainer() {
+        // Calculate total height of all messages
+        const messages = chatMessages.querySelectorAll('.message');
+        let totalHeight = 0;
+        
+        messages.forEach(message => {
+            totalHeight += message.offsetHeight;
+        });
+        
+        // Add padding and gaps
+        totalHeight += 40; // Padding and gaps
+        
+        // Set minimum height
+        const minHeight = 200;
+        
+        // Set the height of the chat messages container
+        chatMessages.style.height = Math.max(totalHeight, minHeight) + 'px';
+        
+        // Ensure the container doesn't exceed the viewport
+        const maxHeight = window.innerHeight - 180; // Account for header and input
+        chatMessages.style.maxHeight = maxHeight + 'px';
+    }
+    
+    // Show typing indicator
     function showTypingIndicator() {
+        // Create typing indicator
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message bot typing';
-        typingDiv.innerHTML = `
-            <div class="message-content">
-                <i class="fas fa-robot"></i>
-                <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        `;
+        typingDiv.id = 'typing-indicator';
+        
+        // Create message content
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        // Add icon
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-robot';
+        messageContent.appendChild(icon);
+        
+        // Create typing animation
+        const typingText = document.createElement('div');
+        typingText.className = 'typing-indicator';
+        
+        // Add dots
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('span');
+            typingText.appendChild(dot);
+        }
+        
+        messageContent.appendChild(typingText);
+        typingDiv.appendChild(messageContent);
+        
+        // Add to chat
         chatMessages.appendChild(typingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        return typingDiv;
+        
+        // Scroll to the typing indicator
+        setTimeout(() => {
+            typingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
     }
     
-    // Function to handle form submission
+    // Remove typing indicator
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    // Handle form submission
     async function handleSubmit(e) {
         e.preventDefault();
         
+        // Get user input
         const question = userInput.value.trim();
         if (!question) return;
         
@@ -128,114 +250,101 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.value = '';
         
         // Show typing indicator
-        const typingIndicator = showTypingIndicator();
+        showTypingIndicator();
         
         try {
+            // Send request to backend
             const response = await fetch('/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ question: question })
+                body: JSON.stringify({ question })
             });
             
+            // Remove typing indicator
+            removeTypingIndicator();
+            
+            // Parse response
             const data = await response.json();
             
-            // Remove typing indicator
-            typingIndicator.remove();
-            
-            // Add bot response
-            addMessage(data.response);
-            
+            // Add bot response with image if available
+            if (data.response) {
+                addMessage(data.response, false, data.image_url, data.image_caption);
+                
+                // Trigger background animation if image is shown
+                if (data.image_url) {
+                    triggerBackgroundAnimation("image shown");
+                }
+            } else {
+                addMessage("I'm sorry, I couldn't process that request.");
+            }
         } catch (error) {
             console.error('Error:', error);
-            typingIndicator.remove();
-            addMessage('Sorry, something went wrong. Please try again.');
+            removeTypingIndicator();
+            addMessage("I'm sorry, there was an error processing your request.");
         }
     }
     
-    // Function to trigger background animation
-    function triggerBackgroundAnimation() {
+    // Function to trigger background animations based on message content
+    function triggerBackgroundAnimation(message) {
         try {
-            // Get all animated elements
-            const floatingElements = document.querySelectorAll('.floating-element');
-            const ergoIcons = document.querySelectorAll('.ergo-icon');
-            const particles = document.querySelectorAll('.particle');
-            const glowElements = document.querySelectorAll('.neon-glow');
-            
-            // Animate floating elements
-            if (floatingElements.length > 0) {
-                const randomFloats = Array.from(floatingElements)
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 2);
-                
-                randomFloats.forEach(element => {
-                    if (element && element.classList) {
-                        element.classList.add('active');
-                        setTimeout(() => {
-                            element.classList.remove('active');
-                        }, 2000);
-                    }
-                });
-            }
-            
-            // Animate particles
-            if (particles.length > 0) {
-                const randomParticles = Array.from(particles)
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 5);
-                
-                randomParticles.forEach(particle => {
-                    if (particle && particle.classList) {
-                        particle.classList.add('active');
-                        setTimeout(() => {
-                            particle.classList.remove('active');
-                        }, 1500);
-                    }
-                });
-            }
-            
-            // Animate glow elements
-            if (glowElements.length > 0) {
-                const randomGlow = glowElements[Math.floor(Math.random() * glowElements.length)];
-                if (randomGlow && randomGlow.style) {
-                    randomGlow.style.opacity = '0.6';
+            // Create particles
+            if (particlesContainer) {
+                for (let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particlesContainer.appendChild(particle);
+                    
                     setTimeout(() => {
-                        randomGlow.style.opacity = '';
-                    }, 1000);
+                        particle.remove();
+                    }, 2000);
                 }
             }
-            
-            // Update icons based on message content
-            const lastMessage = chatMessages.lastElementChild;
-            if (lastMessage && lastMessage.classList.contains('bot') && ergoIcons.length > 0) {
-                const messageText = lastMessage.querySelector('p').textContent.toLowerCase();
+
+            // Animate floating elements
+            if (floatingElements) {
+                floatingElements.forEach(element => {
+                    element.classList.add('active');
+                    setTimeout(() => {
+                        element.classList.remove('active');
+                    }, 1000);
+                });
+            }
+
+            // Show/hide ergonomic icons based on message content
+            if (ergoIcons) {
+                const ergoKeywords = ['posture', 'desk', 'chair', 'exercise', 'stretch'];
+                const hasErgoKeyword = ergoKeywords.some(keyword => 
+                    message.toLowerCase().includes(keyword)
+                );
                 
-                // Reset all icons
                 ergoIcons.forEach(icon => {
-                    if (icon && icon.classList) {
-                        icon.classList.remove('active');
+                    if (hasErgoKeyword) {
+                        icon.style.opacity = '1';
+                        icon.classList.add('active');
+                        setTimeout(() => {
+                            icon.classList.remove('active');
+                        }, 1000);
+                    } else {
+                        icon.style.opacity = '0.3';
                     }
                 });
-                
-                // Update icons based on message content
-                if (messageText.includes('chair') || messageText.includes('sitting')) {
-                    ergoIcons[0]?.classList?.add('active');
-                } else if (messageText.includes('desk') || messageText.includes('table')) {
-                    ergoIcons[1]?.classList?.add('active');
-                } else if (messageText.includes('posture') || messageText.includes('back')) {
-                    ergoIcons[2]?.classList?.add('active');
-                } else if (messageText.includes('keyboard') || messageText.includes('typing')) {
-                    ergoIcons[3]?.classList?.add('active');
-                } else if (messageText.includes('exercise') || messageText.includes('stretch')) {
-                    ergoIcons[4]?.classList?.add('active');
-                } else if (messageText.includes('spine') || messageText.includes('neck')) {
-                    ergoIcons[5]?.classList?.add('active');
-                }
+            }
+
+            // Enhance glow effects
+            if (glowElements) {
+                glowElements.forEach(element => {
+                    element.classList.add('active');
+                    setTimeout(() => {
+                        element.classList.remove('active');
+                    }, 1000);
+                });
             }
         } catch (error) {
-            console.error('Animation error:', error);
-            // Continue execution even if animation fails
+            console.error('Error in background animation:', error);
         }
     }
     
@@ -299,44 +408,49 @@ document.addEventListener('DOMContentLoaded', () => {
         chatForm.addEventListener('submit', handleSubmit);
     }
     
-    // Allow sending message with Enter key
+    // Allow sending with Enter key
     if (userInput) {
         userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                chatForm.dispatchEvent(new Event('submit'));
+            if (e.key === 'Enter') {
+                handleSubmit(e);
             }
         });
     }
     
     // Add click event to suggestion chips
-    suggestionChips.forEach(chip => {
-        if (chip) {
+    if (suggestionChips) {
+        suggestionChips.forEach(chip => {
             chip.addEventListener('click', () => {
                 userInput.value = chip.textContent;
                 userInput.focus();
             });
-        }
-    });
+        });
+    }
     
     // Focus input on load
     if (userInput) {
         userInput.focus();
     }
     
-    // Add subtle animation to the chat container
+    // Add fade-in animation for chat container
     const chatContainer = document.querySelector('.chat-container');
     if (chatContainer) {
         chatContainer.style.opacity = '0';
-        chatContainer.style.transform = 'translateY(20px)';
-        
         setTimeout(() => {
-            chatContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            chatContainer.style.transition = 'opacity 0.5s ease';
             chatContainer.style.opacity = '1';
-            chatContainer.style.transform = 'translateY(0)';
         }, 100);
     }
     
-    // Initialize background with a subtle animation
-    triggerBackgroundAnimation();
+    // Adjust initial message sizes
+    const messages = document.querySelectorAll('.message');
+    messages.forEach(message => {
+        adjustMessageSize(message);
+    });
+    
+    // Initial chat container adjustment
+    adjustChatContainer();
+    
+    // Add window resize listener to adjust container on window size change
+    window.addEventListener('resize', adjustChatContainer);
 }); 
