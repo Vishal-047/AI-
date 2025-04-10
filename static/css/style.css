@@ -1258,28 +1258,38 @@ h1 i {
 }
 
 .status-indicator {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: #ccc;
+    display: inline-block;
+    margin-right: 8px;
     position: relative;
 }
 
-.status-indicator.online {
-    background-color: var(--accent-color-7);
-    box-shadow: 0 0 10px var(--accent-color-7);
+.status-indicator.good {
+    background-color: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
-.status-indicator.online::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background-color: var(--accent-color-7);
-    animation: ripple 2s infinite;
+.status-indicator.warning {
+    background-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.status-indicator.error {
+    background-color: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.status-indicator.analyzing {
+    display: none !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* Message Image Styles */
@@ -1668,5 +1678,74 @@ a, button, .clickable {
     
     .logout-btn i {
         font-size: 14px;
+    }
+}
+
+/* Remove webcam-related styles */
+.webcam-container,
+.webcam-header,
+.webcam-controls,
+.webcam-btn,
+.webcam-placeholder,
+.webcam-popup,
+.webcam-popup-header,
+.webcam-popup-content,
+.webcam-view,
+#webcam,
+#posture-canvas,
+.posture-overlay,
+.posture-status,
+.start-analysis-btn,
+.popup-overlay,
+.status-indicator.analyzing {
+    display: none !important;
+}
+
+/* Keep the popup overlay base styles for other potential uses */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive adjustments for webcam */
+@media (max-width: 768px) {
+    .webcam-container {
+        margin: 0.5rem;
+    }
+    
+    .webcam-popup {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .webcam-view {
+        height: 300px;
+    }
+    
+    .start-analysis-btn span {
+        display: none;
+    }
+    
+    .start-analysis-btn {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .webcam-view {
+        height: 250px;
     }
 } 

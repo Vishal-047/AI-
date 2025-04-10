@@ -453,4 +453,71 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add window resize listener to adjust container on window size change
     window.addEventListener('resize', adjustChatContainer);
+
+    // Webcam popup functionality
+    const webcamPopup = document.querySelector('.webcam-popup');
+    const popupOverlay = document.querySelector('.popup-overlay');
+    const openCameraBtn = document.querySelector('.webcam-btn');
+    const closeCameraBtn = document.querySelector('.close-btn');
+    const startAnalysisBtn = document.querySelector('.start-analysis-btn');
+
+    function openWebcamPopup() {
+        webcamPopup.classList.add('active');
+        popupOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeWebcamPopup() {
+        webcamPopup.classList.remove('active');
+        popupOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        stopWebcam();
+    }
+
+    function startWebcam() {
+        const video = document.getElementById('webcam');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    startAnalysisBtn.disabled = false;
+                })
+                .catch(function(error) {
+                    console.error('Error accessing webcam:', error);
+                    alert('Unable to access webcam. Please make sure you have granted camera permissions.');
+                });
+        }
+    }
+
+    function stopWebcam() {
+        const video = document.getElementById('webcam');
+        if (video.srcObject) {
+            const tracks = video.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+        startAnalysisBtn.disabled = true;
+    }
+
+    // Event listeners for webcam popup
+    openCameraBtn.addEventListener('click', () => {
+        openWebcamPopup();
+        startWebcam();
+    });
+
+    closeCameraBtn.addEventListener('click', closeWebcamPopup);
+    popupOverlay.addEventListener('click', closeWebcamPopup);
+
+    startAnalysisBtn.addEventListener('click', () => {
+        // Add your posture analysis logic here
+        console.log('Starting posture analysis...');
+    });
+
+    // Close popup when pressing Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && webcamPopup.classList.contains('active')) {
+            closeWebcamPopup();
+        }
+    });
 }); 
