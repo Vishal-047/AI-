@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - ErgoBuddy</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Comic Neue', cursive;
+      overflow: hidden;
+    }
+
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -2;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .bg-video.active {
+      opacity: 1;
+      z-index: -1;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: -1;
+    }
+
+    .auth-container {
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
+      margin: auto;
+      top: 15vh;
+      text-align: center;
+      color: white;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 10px;
+    }
+
+    .auth-container input,
+    .auth-container button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .auth-container button {
+      background-color: #00ffe7;
+      font-weight: bold;
+      color: black;
+      cursor: pointer;
+    }
+
+    .auth-container a {
+      color: #00ffe7;
+      text-decoration: none;
+    }
+
+    .error {
+      color: #ff4f4f;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Two overlapping videos for crossfade -->
+  <video id="bg-video-1" class="bg-video" autoplay muted loop playsinline></video>
+  <video id="bg-video-2" class="bg-video" autoplay muted loop playsinline></video>
+  <div class="overlay"></div>
+
+  <div class="auth-container">
+    <h1>Login to ErgoBuddy</h1>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <p>Need an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+  </div>
+
+  <script>
+    const videos = [
+      "{{ url_for('static', filename='videos/w1.mp4') }}",
+      "{{ url_for('static', filename='videos/w2.mp4') }}",
+      "{{ url_for('static', filename='videos/w3.mp4') }}",
+      "{{ url_for('static', filename='videos/w4.mp4') }}"
+    ];
+
+    let currentIndex = 0;
+    let activeVideo = 1;
+
+    const video1 = document.getElementById("bg-video-1");
+    const video2 = document.getElementById("bg-video-2");
+
+    function changeVideo() {
+      const nextIndex = (currentIndex + 1) % videos.length;
+      const nextSrc = videos[nextIndex] + "?t=" + new Date().getTime();
+
+      const currentVideo = activeVideo === 1 ? video1 : video2;
+      const nextVideo = activeVideo === 1 ? video2 : video1;
+
+      nextVideo.src = nextSrc;
+      nextVideo.load();
+      nextVideo.play();
+
+      currentVideo.classList.remove("active");
+      nextVideo.classList.add("active");
+
+      currentIndex = nextIndex;
+      activeVideo = activeVideo === 1 ? 2 : 1;
+    }
+
+    // Initialize first video
+    video1.src = videos[currentIndex];
+    video1.classList.add("active");
+    video1.load();
+    video1.play();
+
+    // Crossfade every 5 seconds
+    setInterval(changeVideo, 5000);
+  </script>
+
+</body>
+</html>
