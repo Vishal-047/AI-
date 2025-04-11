@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, s
 import google.generativeai as genai
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
+import os
 
 app = Flask(__name__)
-app.secret_key = "your-secret-key-here"  
-GEMINI_API_KEY = "AIzaSyBVI-1lvktyNikumOK4xFxP4gNW62nFI2o" 
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyBVI-1lvktyNikumOK4xFxP4gNW62nFI2o')
 
 # Configure Gemini API with safety settings
 genai.configure(api_key=GEMINI_API_KEY)
@@ -225,4 +226,4 @@ def ask():
         return jsonify({"error": "An unexpected error occurred. Please try again."}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
