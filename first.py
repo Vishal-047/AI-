@@ -1,12 +1,16 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from dotenv import load_dotenv
 import google.generativeai as genai
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
 import os
 
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyBVI-1lvktyNikumOK4xFxP4gNW62nFI2o')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 
 # Configure Gemini API with safety settings
 genai.configure(api_key=GEMINI_API_KEY)
